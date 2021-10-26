@@ -16,11 +16,11 @@ namespace HueSync_2022
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
 
-            RunProgram();
+            await RunProgram();
             
 
             
@@ -34,7 +34,7 @@ namespace HueSync_2022
 
         }
 
-        static async void RunProgram()
+        static async Task RunProgram()
         {
             bool Running = true;
             ILocalHueClient client = new LocalHueClient("192.168.1.82");
@@ -58,9 +58,11 @@ namespace HueSync_2022
 
                 Console.WriteLine("Sending Command to client");
                 //Awaits a task
-                await client.SendCommandAsync(command, new List<string> { "13" });
+                Task<Q42.HueApi.Models.Groups.HueResults> commandsend = client.SendCommandAsync(command, new List<string> { "13" });
+                
                 Console.WriteLine("Command Sent!");
-                Thread.Sleep(50);
+                await Task.Delay(100);
+                await commandsend;
             }
             while (Running);
             
@@ -88,7 +90,9 @@ namespace HueSync_2022
             Graphics graphics = Graphics.FromImage(imgMap);
 
             graphics.CopyFromScreen(0, 0, 0, 0, s);
-            Color avrgColor = GetDominantColor(imgMap);
+
+            Bitmap ResizedMap = new Bitmap(imgMap, new Size(imgMap.Width / 4, imgMap.Height / 4));
+            Color avrgColor = GetDominantColor(ResizedMap);
 
             return avrgColor;
         }
